@@ -4,14 +4,17 @@ export default function Home() {
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-center p-4 sm:p-8 md:p-20">
       <div className="flex flex-col items-center justify-center text-center max-w-[90vw] sm:max-w-[80vw] md:max-w-[70vw] gap-8">
-        <Image 
-          src="/logos/hex-black.svg" 
-          alt="Hex" 
-          width={400} 
-          height={400} 
-          className="w-40 h-40 sm:w-24 sm:h-24 md:w-32 md:h-32" 
-          priority
-        />
+        <div className="flex items-center gap-1">
+          <Image 
+            src="/logos/hex-black.svg" 
+            alt="Hex" 
+            width={400} 
+            height={400} 
+            className="w-40 h-40 sm:w-24 sm:h-24 md:w-32 md:h-32" 
+            priority
+          />
+          <span className="px-1 py-1 text-base font-medium text-gray-500 -mt-4">BETA</span>
+        </div>
         <p className="text-xl sm:text-2xl">
           Hex is a full-stack investment platform that enables users to discover, analyze, and participate in private funding rounds for high-growth startups and tokenized assets. Hex bridges the gap between retail and institutional investing in early-stage ventures.
         </p>

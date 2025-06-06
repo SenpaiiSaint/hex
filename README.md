@@ -30,6 +30,12 @@
 - Metrics dashboard: user growth, funding activity.
 - Content moderation (comments, startup updates).
 
+# Additional Features
+- Admin Dashboard: Server-protected, RBAC-secured route for startup/token approvals.
+- Stripe (Fiat Payments): For simulated fiat investment UX.
+- WalletConnect (Demo Crypto): Allow testnet wallet connection for crypto simulation.
+- Background Jobs (Optional): CRON for token vesting updates.
+
 
                       +-------------------+
                       |     Frontend      |
