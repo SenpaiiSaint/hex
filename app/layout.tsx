@@ -27,6 +27,7 @@ const satoshi = localFont({
 export const metadata: Metadata = {
   title: "Hex",
   description: "Early-stage investing in startups and tokens",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 };
 
 export default function RootLayout({
@@ -36,7 +37,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${satoshi.variable} font-satoshi antialiased`}>
+      <body className={`${satoshi.variable} font-satoshi antialiased min-h-screen w-full`}>
         {children}
       </body>
     </html>
