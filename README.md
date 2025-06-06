@@ -36,6 +36,11 @@
 - WalletConnect (Demo Crypto): Allow testnet wallet connection for crypto simulation.
 - Background Jobs (Optional): CRON for token vesting updates.
 
+### Middleware
+
+This app includes an experimental `middleware.experimental.ts` using Next.js edge features.
+It’s not active by default and is excluded from production builds for stability.
+
 
                       +-------------------+
                       |     Frontend      |
