@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -18,21 +19,19 @@ export default function Home() {
         <p className="text-xl sm:text-2xl">
           Hex is a full-stack investment platform that enables users to discover, analyze, and participate in private funding rounds for high-growth startups and tokenized assets. Hex bridges the gap between retail and institutional investing in early-stage ventures.
         </p>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4 text-sm sm:text-base"
-          href="https://hex-phi.vercel.app/"
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          className="flex items-center gap-2 text-sm sm:text-base font-medium text-gray-500 hover:text-gray-700 transition-colors no-underline hover:underline hover:underline-offset-4"
+          href="/waitlist"
         >
           <Image
             aria-hidden
             src="/globe.svg"
             alt="Globe icon"
-            width={16}
-            height={16}
+            width={20}
+            height={20}
           />
-          Go to hex.co →
-        </a>
+          Join Waitlist →
+        </Link>
       </div>
     </main>
   );
