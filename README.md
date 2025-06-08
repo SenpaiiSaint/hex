@@ -2,8 +2,9 @@
  Hex is a full-stack investment platform that enables users to discover, analyze, and participate in private funding rounds for high-growth startups and tokenized assets. Built with compliance and user experience at its core, Hex bridges the gap between retail and institutional investing in early-stage ventures.
 
 # Core Features
-- Authentication & User Roles
-- Secure login (Clerk/Auth.js) with magic link + OAuth options.
+- Authentication (Complete) & User Roles
+- Verification Emails (Complete)
+- Secure login (Better-Auth) with magic link + OAuth options.
 - Role-based access (Investor, Startup Founder, Admin).
 
 ## Investment Marketplace
@@ -42,6 +43,7 @@ This app includes an experimental `middleware.experimental.ts` using Next.js edg
 It’s not active by default and is excluded from production builds for stability.
 
 
+
                       +-------------------+
                       |     Frontend      |
                       |  (Next.js, TS)    |
@@ -58,7 +60,7 @@ It’s not active by default and is excluded from production builds for stabilit
            |                                      |
 +----------v----------+               +-----------v-----------+
 | Investment Service  |               |   Auth Service        |
-| Node.js/FastAPI     |               | Clerk/Auth.js         |
+| Node.js/FastAPI     |               | Better-Auth           |
 | Handles offerings,  |               | Handles user sessions |
 | transactions, logic |               | role-based access     |
 +----------+----------+               +-----------+-----------+
