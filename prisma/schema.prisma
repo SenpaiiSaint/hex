@@ -9,26 +9,32 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   name          String
   email         String
-  emailVerified Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  role          String?
+  banned        Boolean?
+  banReason     String?
+  banExpires    DateTime?
+  emailVerified Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
 }
 
 model Session {
-  id        String   @id @default(uuid())
-  userId    String
-  token     String
-  expiresAt DateTime
-  ipAddress String
-  userAgent String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id])
+  id                   String   @id @default(uuid())
+  userId               String
+  token                String
+  expiresAt            DateTime
+  ipAddress            String
+  userAgent            String
+  impersonatedBy       String?
+  activeOrganizationId String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [id])
 }
 
 model Account {
@@ -56,3 +62,44 @@ model Verification {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String
+  logo      String?
+  metadata  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Member {
+  id             String   @id @default(uuid())
+  userId         String
+  organizationId String
+  teamId         String?
+  role           String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Invitation {
+  id             String   @id @default(uuid())
+  email          String
+  inviterId      String
+  organizationId String
+  role           String
+  teamId         String?
+  status         String
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+}
+
+model Team {
+  id             String    @id @default(uuid())
+  name           String
+  organizationId String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime? @updatedAt
+}
+
