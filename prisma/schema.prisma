@@ -8,19 +8,84 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ENUMS
+enum FundingStage {
+  PRE_SEED
+  SEED
+  SERIES_A
+  SERIES_B
+  SERIES_C
+  TOKEN_PRESALE
+  TOKEN_ICO
+  OTHER
+}
+
+enum KYCStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum EntityType {
+  STARTUP
+  TOKEN
+}
+
+enum UserRole {
+  ADMIN
+  FOUNDER
+  INVESTOR
+}
+
+enum PaymentStatus {
+  INITIATED
+  SUCCESS
+  FAILED
+  CANCELLED
+}
+
+enum Chain {
+  ETHEREUM
+  POLYGON
+  BASE
+  ARBITRUM
+  BITCOIN
+  OTHER
+}
+
+enum DocumentType {
+  PITCH_DECK
+  WHITEPAPER
+  LEGAL
+  FINANCIAL
+  OTHER
+}
+
 model User {
-  id            String    @id @default(uuid())
-  name          String
-  email         String
-  role          String?
-  banned        Boolean?
-  banReason     String?
-  banExpires    DateTime?
-  emailVerified Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+  id             String               @id @default(uuid())
+  name           String
+  email          String              @unique
+  role           UserRole            @default(INVESTOR)
+  banned         Boolean             @default(false)
+  banReason      String?
+  banExpires     DateTime?
+  emailVerified  Boolean             @default(false)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  sessions       Session[]
+  accounts       Account[]
+  kycRecord      KYCRecord?
+  organization   OrganizationMember[]
+  investments    Investment[]
+  notifications  Notification[]
+  startup        Startup[]           @relation("FounderStartups")
+  tokens         Token[]             @relation("CreatorTokens")
+  adminLogs      AdminActivityLog[]  @relation("AdminLogs")
+  paymentIntents PaymentIntent[]
+  wallets        Wallet[]
+  comments       Comment[]
+
+  @@index([email])
 }
 
 model Session {
@@ -35,6 +100,8 @@ model Session {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
   user                 User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
 }
 
 model Account {
@@ -52,6 +119,8 @@ model Account {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   user                  User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
 }
 
 model Verification {
@@ -63,14 +132,33 @@ model Verification {
   updatedAt  DateTime @updatedAt
 }
 
+// MULTI-TENANCY 
+
 model Organization {
   id        String   @id @default(uuid())
   name      String
-  slug      String
+  slug      String   @unique
   logo      String?
   metadata  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  members   OrganizationMember[]
+  startups  Startup[]
+  tokens    Token[]
+
+  @@index([slug])
+}
+
+model OrganizationMember {
+  id             String       @id @default(uuid())
+  userId         String
+  organizationId String
+  role           UserRole     @default(INVESTOR)
+  joinedAt       DateTime     @default(now())
+  user           User         @relation(fields: [userId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([userId, organizationId])
 }
 
 model Member {
@@ -103,3 +191,251 @@ model Team {
   updatedAt      DateTime? @updatedAt
 }
 
+model Startup {
+  id             String           @id @default(uuid())
+  name           String
+  description    String           @db.Text
+  industry       String
+  stage          FundingStage
+  website        String?
+  pitchDeck      String?         // Supabase Storage URL
+  fundingGoal    Decimal         @db.Decimal(18, 2)
+  amountRaised   Decimal         @default(0) @db.Decimal(18, 2)
+  isApproved     Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  founderId      String
+  founder        User            @relation("FounderStartups", fields: [founderId], references: [id])
+  organizationId String?
+  organization   Organization?   @relation(fields: [organizationId], references: [id])
+  investments    Investment[]
+  dueDiligence   DueDiligenceReport[] @relation("StartupDueDiligence")
+  documents      EntityDocument[] @relation("StartupDocuments")
+  comments       Comment[]        @relation("StartupComments")
+
+  @@index([industry])
+  @@index([stage])
+  @@index([founderId])
+  @@index([organizationId])
+  @@index([isApproved])
+}
+
+model Token {
+  id           String        @id @default(uuid())
+  name         String
+  symbol       String        @unique
+  description  String        @db.Text
+  totalSupply  Decimal       @db.Decimal(38,0)
+  tokenomics   String        @db.Text
+  whitepaperUrl String?
+  fundingGoal  Decimal       @db.Decimal(18,2)
+  amountRaised Decimal       @default(0) @db.Decimal(18,2)
+  isApproved   Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  creatorId        String
+  creator          User         @relation("CreatorTokens", fields: [creatorId], references: [id])
+  organizationId   String?
+  organization     Organization? @relation(fields: [organizationId], references: [id])
+
+  investments      Investment[]
+  dueDiligence     DueDiligenceReport[] @relation("TokenDueDiligence")
+  documents        EntityDocument[]     @relation("TokenDocuments")
+  comments         Comment[]            @relation("TokenComments")
+
+  @@index([symbol])
+  @@index([creatorId])
+  @@index([organizationId])
+  @@index([isApproved])
+}
+
+//────────────────────────────────────────────────────────────
+// INVESTMENTS & VESTING
+//────────────────────────────────────────────────────────────
+model Investment {
+  id          String   @id @default(uuid())
+  userId      String
+  startupId   String?
+  tokenId     String?
+  amount      Decimal  @db.Decimal(18,2)
+  ownership   Decimal  @db.Decimal(10,4)  // percentage
+  createdAt   DateTime @default(now())
+
+  user        User       @relation(fields: [userId], references: [id])
+  startup     Startup?   @relation(fields: [startupId], references: [id])
+  token       Token?     @relation(fields: [tokenId], references: [id])
+  vesting     VestingSchedule[]
+
+  @@index([userId])
+  @@index([startupId])
+  @@index([tokenId])
+  @@index([createdAt])
+  @@unique([userId, startupId])
+  @@unique([userId, tokenId])
+}
+
+model VestingSchedule {
+  id            String    @id @default(uuid())
+  investmentId  String
+  cliffDate     DateTime
+  unlockDate    DateTime
+  percentage    Decimal   @db.Decimal(10,4) // 0-100
+  createdAt     DateTime  @default(now())
+
+  investment    Investment @relation(fields: [investmentId], references: [id])
+}
+
+//────────────────────────────────────────────────────────────
+// COMPLIANCE & INSIGHTS
+//────────────────────────────────────────────────────────────
+model KYCRecord {
+  id        String    @id @default(uuid())
+  userId    String    @unique
+  status    KYCStatus @default(PENDING)
+  reason    String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+model DueDiligenceReport {
+  id         String     @id @default(uuid())
+  entityType EntityType
+  entityId   String
+  summary    String     @db.Text
+  riskScore  Int        // 0-100
+  sentiment  String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  startup    Startup?   @relation("StartupDueDiligence", fields: [entityId], references: [id], map: "DueDiligenceReport_startup_fkey")
+  token      Token?     @relation("TokenDueDiligence", fields: [entityId], references: [id], map: "DueDiligenceReport_token_fkey")
+}
+
+model AdminActivityLog {
+  id         String     @id @default(uuid())
+  adminId    String
+  action     String
+  targetId   String
+  targetType EntityType
+  timestamp  DateTime   @default(now())
+
+  admin      User       @relation("AdminLogs", fields: [adminId], references: [id])
+}
+
+//────────────────────────────────────────────────────────────
+// PAYMENTS (FIAT) & CRYPTO
+//────────────────────────────────────────────────────────────
+model PaymentIntent {
+  id          String        @id @default(uuid())
+  userId      String
+  provider    String        // "stripe"
+  providerId  String        // Stripe intent ID
+  amount      Decimal       @db.Decimal(18,2)
+  currency    String        @default("USD")
+  status      PaymentStatus @default(INITIATED)
+  metadata    Json?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  user        User          @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model Wallet {
+  id        String   @id @default(uuid())
+  userId    String
+  address   String
+  chain     Chain
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  txs       CryptoTx[]
+
+  @@unique([chain, address])
+  @@index([userId])
+}
+
+model CryptoTx {
+  id         String     @id @default(uuid()) // internal ID
+  walletId   String
+  entityType EntityType
+  entityId   String
+  txHash     String     @unique
+  amount     Decimal    @db.Decimal(38,18)
+  status     PaymentStatus
+  timestamp  DateTime   @default(now())
+
+  wallet     Wallet     @relation(fields: [walletId], references: [id])
+
+  @@index([entityId, entityType])
+  @@index([walletId])
+  @@index([timestamp])
+  @@index([status])
+}
+
+//────────────────────────────────────────────────────────────
+// DOCUMENTS
+//────────────────────────────────────────────────────────────
+model Document {
+  id        String       @id @default(uuid())
+  url       String
+  title     String
+  type      DocumentType
+  createdAt DateTime     @default(now())
+  uploadedBy String?
+
+  entities  EntityDocument[]
+}
+
+model EntityDocument {
+  id         String     @id @default(uuid())
+  entityType EntityType
+  entityId   String
+  documentId String
+  visibility String     @default("PUBLIC") // or PRIVATE
+  createdAt  DateTime   @default(now())
+
+  document   Document   @relation(fields: [documentId], references: [id])
+  startup    Startup?   @relation("StartupDocuments", fields: [entityId], references: [id], map: "EntityDocument_startup_fkey")
+  token      Token?     @relation("TokenDocuments", fields: [entityId], references: [id], map: "EntityDocument_token_fkey")
+
+  @@index([entityId, entityType])
+}
+
+//────────────────────────────────────────────────────────────
+// NOTIFICATIONS & COMMENTS
+//────────────────────────────────────────────────────────────
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String   // e.g. FUNDING_GOAL_REACHED
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId, read])
+}
+
+model Comment {
+  id         String     @id @default(uuid())
+  userId     String
+  entityType EntityType
+  entityId   String
+  body       String     @db.Text
+  parentId   String?    // threaded replies
+  createdAt  DateTime   @default(now())
+
+  user       User       @relation(fields: [userId], references: [id])
+  startup    Startup?   @relation("StartupComments", fields: [entityId], references: [id], map: "Comment_startup_fkey")
+  token      Token?     @relation("TokenComments", fields: [entityId], references: [id], map: "Comment_token_fkey")
+
+  @@index([entityId, entityType])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([parentId])
+}
