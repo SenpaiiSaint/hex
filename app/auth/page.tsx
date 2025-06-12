@@ -9,7 +9,6 @@ import { useRouter } from 'next/navigation';
 import { authClient } from '@/backend/auth/auth-client';
 import { FaDiscord, FaGoogle } from 'react-icons/fa';
 
-// Dynamically import the form component with no SSR
 const AuthForm = dynamic(() => import('./AuthForm'), {
   ssr: false,
   loading: () => (
@@ -37,23 +36,10 @@ export default function AuthPage() {
     const checkSession = async () => {
       const { data: session } = await authClient.getSession();
       if (session) {
-        router.push('/');
+        router.push('/investor');
       }
     };
     checkSession();
-
-    // Cleanup function to handle page unload
-    const handleBeforeUnload = () => {
-      // Clear any session-related data
-      authClient.signOut();
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      // Also clear session when component unmounts
-      authClient.signOut();
-    };
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,7 +53,7 @@ export default function AuthPage() {
           setError(error.message ?? 'Authentication failed');
           return;
         }
-        router.push('/');
+        router.push('/investor');
       } else {
         if (formData.password !== formData.confirmPassword) {
           setError('Passwords do not match');
@@ -82,7 +68,7 @@ export default function AuthPage() {
           setError(error.message ?? 'Registration failed');
           return;
         }
-        router.push('/');
+        router.push('/investor');
       }
     } catch {
       setError('An unexpected error occurred');
@@ -168,7 +154,7 @@ export default function AuthPage() {
       </div>
       {/* Footer */}
       <footer className="w-full flex flex-col md:flex-row justify-center md:justify-between items-center px-8 py-4 text-md font-bold text-gray-100 tracking-widest select-none mt-8 absolute left-0 bottom-0 ">
-        <span className="mb-2 md:mb-0">KYNDSPACE</span>
+        <span className="mb-2 md:mb-0">HEX</span>
         <span>{new Date().getFullYear()}</span>
       </footer>
     </div>
