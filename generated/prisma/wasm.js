@@ -125,6 +125,8 @@ exports.Prisma.UserScalarFieldEnum = {
   name: 'name',
   email: 'email',
   emailVerified: 'emailVerified',
+  role: 'role',
+  founderStatus: 'founderStatus',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -165,9 +167,186 @@ exports.Prisma.VerificationScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.OrganizationScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrganizationMemberScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  organizationId: 'organizationId',
+  role: 'role',
+  joinedAt: 'joinedAt'
+};
+
+exports.Prisma.StartupScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  industry: 'industry',
+  stage: 'stage',
+  website: 'website',
+  pitchDeck: 'pitchDeck',
+  fundingGoal: 'fundingGoal',
+  amountRaised: 'amountRaised',
+  isApproved: 'isApproved',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  founderId: 'founderId',
+  organizationId: 'organizationId'
+};
+
+exports.Prisma.TokenScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  symbol: 'symbol',
+  description: 'description',
+  totalSupply: 'totalSupply',
+  tokenomics: 'tokenomics',
+  whitepaperUrl: 'whitepaperUrl',
+  fundingGoal: 'fundingGoal',
+  isApproved: 'isApproved',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  creatorId: 'creatorId',
+  organizationId: 'organizationId'
+};
+
+exports.Prisma.InvestmentScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  startupId: 'startupId',
+  tokenId: 'tokenId',
+  amount: 'amount',
+  ownership: 'ownership',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.VestingScheduleScalarFieldEnum = {
+  id: 'id',
+  investmentId: 'investmentId',
+  cliffDate: 'cliffDate',
+  unlockDate: 'unlockDate',
+  percentage: 'percentage',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.KYCRecordScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  status: 'status',
+  reason: 'reason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DueDiligenceReportScalarFieldEnum = {
+  id: 'id',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  summary: 'summary',
+  riskScore: 'riskScore',
+  sentiment: 'sentiment',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  startupId: 'startupId',
+  tokenId: 'tokenId'
+};
+
+exports.Prisma.AdminActivityLogScalarFieldEnum = {
+  id: 'id',
+  adminId: 'adminId',
+  action: 'action',
+  targetId: 'targetId',
+  targetType: 'targetType',
+  timestamp: 'timestamp'
+};
+
+exports.Prisma.PaymentIntentScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  provider: 'provider',
+  providerId: 'providerId',
+  amount: 'amount',
+  currency: 'currency',
+  status: 'status',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WalletScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  address: 'address',
+  chain: 'chain',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CryptoTxScalarFieldEnum = {
+  id: 'id',
+  walletId: 'walletId',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  txHash: 'txHash',
+  amount: 'amount',
+  status: 'status',
+  timestamp: 'timestamp'
+};
+
+exports.Prisma.DocumentScalarFieldEnum = {
+  id: 'id',
+  url: 'url',
+  title: 'title',
+  type: 'type',
+  uploadedBy: 'uploadedBy',
+  createdAt: 'createdAt',
+  startupId: 'startupId'
+};
+
+exports.Prisma.EntityDocumentScalarFieldEnum = {
+  id: 'id',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  documentId: 'documentId',
+  visibility: 'visibility',
+  createdAt: 'createdAt',
+  tokenId: 'tokenId'
+};
+
+exports.Prisma.NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  message: 'message',
+  read: 'read',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CommentScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  body: 'body',
+  parentId: 'parentId',
+  createdAt: 'createdAt',
+  startupId: 'startupId',
+  tokenId: 'tokenId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -180,12 +359,87 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+exports.UserRole = exports.$Enums.UserRole = {
+  INVESTOR: 'INVESTOR',
+  FOUNDER: 'FOUNDER',
+  ADMIN: 'ADMIN'
+};
+
+exports.FounderStatus = exports.$Enums.FounderStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+};
+
+exports.FundingStage = exports.$Enums.FundingStage = {
+  PRE_SEED: 'PRE_SEED',
+  SEED: 'SEED',
+  SERIES_A: 'SERIES_A',
+  SERIES_B: 'SERIES_B',
+  SERIES_C: 'SERIES_C',
+  OTHER: 'OTHER'
+};
+
+exports.KYCStatus = exports.$Enums.KYCStatus = {
+  PENDING: 'PENDING',
+  VERIFIED: 'VERIFIED',
+  REJECTED: 'REJECTED'
+};
+
+exports.EntityType = exports.$Enums.EntityType = {
+  STARTUP: 'STARTUP',
+  TOKEN: 'TOKEN'
+};
+
+exports.PaymentStatus = exports.$Enums.PaymentStatus = {
+  INITIATED: 'INITIATED',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.Chain = exports.$Enums.Chain = {
+  ETHEREUM: 'ETHEREUM',
+  POLYGON: 'POLYGON',
+  BASE: 'BASE',
+  ARBITRUM: 'ARBITRUM',
+  OTHER: 'OTHER'
+};
+
+exports.DocumentType = exports.$Enums.DocumentType = {
+  PITCH_DECK: 'PITCH_DECK',
+  SAFE: 'SAFE',
+  SAFT: 'SAFT',
+  KYC: 'KYC',
+  OTHER: 'OTHER'
+};
 
 exports.Prisma.ModelName = {
   User: 'User',
   Session: 'Session',
   Account: 'Account',
-  Verification: 'Verification'
+  Verification: 'Verification',
+  Organization: 'Organization',
+  OrganizationMember: 'OrganizationMember',
+  Startup: 'Startup',
+  Token: 'Token',
+  Investment: 'Investment',
+  VestingSchedule: 'VestingSchedule',
+  KYCRecord: 'KYCRecord',
+  DueDiligenceReport: 'DueDiligenceReport',
+  AdminActivityLog: 'AdminActivityLog',
+  PaymentIntent: 'PaymentIntent',
+  Wallet: 'Wallet',
+  CryptoTx: 'CryptoTx',
+  Document: 'Document',
+  EntityDocument: 'EntityDocument',
+  Notification: 'Notification',
+  Comment: 'Comment'
 };
 
 /**

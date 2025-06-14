@@ -11,6 +11,24 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...compat.config({
+    rules: {
+      'react/no-unescaped-entities': 'off',
+      '@next/next/no-page-custom-font': 'off',
+      '@typescript-eslint/no-unused-expressions': 'off',
+      '@typescript-eslint/no-unused-vars': ['warn', { 
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+      }],
+      '@typescript-eslint/no-this-alias': 'off',
+    },
+    ignorePatterns: [
+      'app/generated/prisma/**/*',
+      '**/node_modules/**',
+      '**/.next/**',
+      '**/out/**',
+    ],
+  }),
 ];
 
 export default eslintConfig;

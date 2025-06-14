@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
-import { signIn } from '@/backend/auth/sign-in';
-import { signUp } from '@/backend/auth/sign-up';
+import { signIn } from '@/auth/sign-in';
+import { signUp } from '@/auth/sign-up';
 import { useRouter } from 'next/navigation';
-import { authClient } from '@/backend/auth/auth-client';
+import { authClient } from '@/auth/auth-client';
 import { FaDiscord, FaGoogle } from 'react-icons/fa';
 
 const AuthForm = dynamic(() => import('./AuthForm'), {
@@ -36,7 +36,7 @@ export default function AuthPage() {
     const checkSession = async () => {
       const { data: session } = await authClient.getSession();
       if (session) {
-        router.push('/investor');
+        router.push('/marketplace');
       }
     };
     checkSession();
@@ -53,7 +53,7 @@ export default function AuthPage() {
           setError(error.message ?? 'Authentication failed');
           return;
         }
-        router.push('/investor');
+        router.push('/marketplace');
       } else {
         if (formData.password !== formData.confirmPassword) {
           setError('Passwords do not match');
@@ -68,7 +68,7 @@ export default function AuthPage() {
           setError(error.message ?? 'Registration failed');
           return;
         }
-        router.push('/investor');
+        router.push('/marketplace');
       }
     } catch {
       setError('An unexpected error occurred');
