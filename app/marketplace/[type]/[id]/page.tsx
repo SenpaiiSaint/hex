@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import FundingWidget from "./fundingWidget";
-import { Startup, Token, Document, DueDiligenceReport, Investment } from "@/app/generated/prisma";
+import { Startup, Token, Document, DueDiligenceReport, Investment } from "@/generated/prisma";
 
 type EntityWithRelations = (Startup | Token) & {
   documents: Document[];
