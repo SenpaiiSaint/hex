@@ -35,6 +35,14 @@ export default async function Marketplace({
     orderBy: { createdAt: "desc" },
   });
 
+  // Transform the data to match the expected types
+  const transformedStartups = startups.map(startup => ({
+    ...startup,
+    investments: startup.investments.map(investment => ({
+      amount: Number(investment.amount)
+    }))
+  }));
+
   console.log('Fetched startups:', startups); // Debug log
 
   return (
@@ -44,7 +52,7 @@ export default async function Marketplace({
         {startups.length === 0 ? (
           <p className="col-span-full text-center text-gray-500">No startups found</p>
         ) : (
-          startups.map((item) => (
+          transformedStartups.map((item) => (
             <Card key={item.id} data={item} />
           ))
         )}
