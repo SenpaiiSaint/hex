@@ -1,15 +1,14 @@
 import Link from "next/link";
 import { Badge } from "@/ui/Badge";
 import { ProgressBar } from "@/ui/ProgressBar";
-import { PrismaClient } from "@prisma/client";
+import type { Startup, Token } from "@/generated/prisma";
 
-type Entity =
-  | (PrismaClient["startup"] & { investments: { amount: number }[] })
-  | (PrismaClient["token"] & { investments: { amount: number }[] });
+type Entity = (Startup & { investments: { amount: number }[] }) | (Token & { investments: { amount: number }[] });
 
 export default function Card({ data }: { data: Entity }) {
   const raised = data.investments.reduce((sum: number, i: { amount: number }) => sum + Number(i.amount), 0);
   const pct = Math.min(100, (raised / Number(data.fundingGoal)) * 100);
+  const isStartup = 'industry' in data;
 
   return (
     <Link
@@ -33,8 +32,9 @@ export default function Card({ data }: { data: Entity }) {
       </div>
 
       <footer className="mt-3 flex gap-2 text-xs">
-        <Badge color="blue">{data.industry}</Badge>
-        {"stage" in data && <Badge>{data.stage}</Badge>}
+        {isStartup && <Badge color="blue">{data.industry}</Badge>}
+        {isStartup && <Badge>{data.stage}</Badge>}
+        {"symbol" in data && <Badge color="blue">{data.symbol}</Badge>}
       </footer>
     </Link>
   );
