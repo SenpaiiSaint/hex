@@ -1,6 +1,9 @@
 # Overview
  Hex is a full-stack investment platform that enables users to discover, analyze, and participate in private funding rounds for high-growth startups and tokenized assets. Built with compliance and user experience at its core, Hex bridges the gap between retail and institutional investing in early-stage ventures.
 
+ # ACCESS
+ - You can access the marketplace with this link: https://hex-phi.vercel.app/marketplace ( no protected routes implemented yet but in a real app it would )
+
 # Core Features
 - Authentication (Complete) & User Roles
 - Verification Emails (Complete)
