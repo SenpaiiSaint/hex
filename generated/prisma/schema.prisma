@@ -1,6 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../app/generated/prisma"
+  provider      = "prisma-client-js"
+  output        = "../generated/prisma"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
@@ -171,7 +172,7 @@ model Startup {
   pitchDeck    String? // SUPABASE URL
   fundingGoal  Decimal      @db.Decimal(18, 2)
   amountRaised Decimal      @db.Decimal(18, 2)
-  isApproved   Boolean      @default(false)
+  isApproved   Boolean      @default(true)
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
