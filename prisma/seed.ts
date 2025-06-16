@@ -854,39 +854,225 @@ const founderData: Prisma.UserCreateInput[] = [
     }
 ];
 
+const portfolioUserData: Prisma.UserCreateInput[] = [
+    {
+        name: "John Smith",
+        email: "john@example.com",
+        emailVerified: true,
+        role: "INVESTOR",
+        kycRecord: {
+            create: {
+                status: "VERIFIED"
+            }
+        },
+        accounts: {
+            create: {
+                accountId: "john_smith",
+                providerId: "credentials",
+                password: "hashed_password_here" // In production, this should be properly hashed
+            }
+        },
+        wallets: {
+            create: [
+                {
+                    address: "0x1234567890abcdef1234567890abcdef12345678",
+                    chain: "ETHEREUM"
+                }
+            ]
+        }
+    },
+    {
+        name: "Sarah Johnson",
+        email: "sarah@example.com",
+        emailVerified: true,
+        role: "INVESTOR",
+        kycRecord: {
+            create: {
+                status: "VERIFIED"
+            }
+        },
+        accounts: {
+            create: {
+                accountId: "sarah_johnson",
+                providerId: "credentials",
+                password: "hashed_password_here"
+            }
+        },
+        wallets: {
+            create: [
+                {
+                    address: "0xabcdef1234567890abcdef1234567890abcdef12",
+                    chain: "POLYGON"
+                }
+            ]
+        }
+    },
+    {
+        name: "Michael Chen",
+        email: "michael@example.com",
+        emailVerified: true,
+        role: "INVESTOR",
+        kycRecord: {
+            create: {
+                status: "VERIFIED"
+            }
+        },
+        accounts: {
+            create: {
+                accountId: "michael_chen",
+                providerId: "credentials",
+                password: "hashed_password_here"
+            }
+        },
+        wallets: {
+            create: [
+                {
+                    address: "0x7890abcdef1234567890abcdef1234567890abcd",
+                    chain: "ARBITRUM"
+                }
+            ]
+        }
+    }
+];
+
 async function main() {
     console.log('Start seeding...');
     
-    // Create founders first
-    for (const founder of founderData) {
-        const createdFounder = await prisma.user.create({
-            data: founder
-        });
-        console.log(`Created founder with id: ${createdFounder.id}`);
-    }
+    // Create portfolio users first
+    const createdUsers = await Promise.all(
+        portfolioUserData.map(user => 
+            prisma.user.create({
+                data: user
+            })
+        )
+    );
+    console.log('Created portfolio users');
+
+    // Create founders
+    const _createdFounders = await Promise.all(
+        founderData.map(founder => 
+            prisma.user.create({
+                data: founder
+            })
+        )
+    );
+    console.log('Created founders');
     
     // Create investors
-    for (const investor of investorData) {
-        const createdInvestor = await prisma.user.create({
-            data: investor
-        });
-        console.log(`Created investor with id: ${createdInvestor.id}`);
-    }
+    const _createdInvestors = await Promise.all(
+        investorData.map(investor => 
+            prisma.user.create({
+                data: investor
+            })
+        )
+    );
+    console.log('Created investors');
     
-    for (const startup of startupData) {
-        const createdStartup = await prisma.startup.create({
-            data: startup
-        });
-        console.log(`Created startup with id: ${createdStartup.id}`);
-    }
+    // Create startups
+    const createdStartups = await Promise.all(
+        startupData.map(startup => 
+            prisma.startup.create({
+                data: startup
+            })
+        )
+    );
+    console.log('Created startups');
 
-    for (const token of tokenData) {
-        const createdToken = await prisma.token.create({
-            data: token
-        });
-        console.log(`Created token with id: ${createdToken.id}`);
+    // Create tokens
+    const createdTokens = await Promise.all(
+        tokenData.map(token => 
+            prisma.token.create({
+                data: token
+            })
+        )
+    );
+    console.log('Created tokens');
+
+    // Create portfolio investments
+    const stripeStartup = createdStartups.find(s => s.name === "Stripe");
+    const notionStartup = createdStartups.find(s => s.name === "Notion");
+    const arbToken = createdTokens.find(t => t.symbol === "ARB");
+    
+    if (stripeStartup && notionStartup && arbToken) {
+        const investments = [
+            {
+                amount: 50000,
+                ownership: 0.5,
+                userId: createdUsers[0].id, // John Smith
+                startupId: stripeStartup.id,
+                vesting: [
+                    {
+                        cliffDate: new Date("2024-12-31"),
+                        unlockDate: new Date("2025-12-31"),
+                        percentage: 0.25
+                    },
+                    {
+                        cliffDate: new Date("2025-12-31"),
+                        unlockDate: new Date("2026-12-31"),
+                        percentage: 0.25
+                    }
+                ]
+            },
+            {
+                amount: 25000,
+                ownership: 0.3,
+                userId: createdUsers[1].id, // Sarah Johnson
+                tokenId: arbToken.id,
+                vesting: [
+                    {
+                        cliffDate: new Date("2024-06-30"),
+                        unlockDate: new Date("2025-06-30"),
+                        percentage: 0.5
+                    }
+                ]
+            },
+            {
+                amount: 100000,
+                ownership: 1.0,
+                userId: createdUsers[2].id, // Michael Chen
+                startupId: notionStartup.id,
+                vesting: [
+                    {
+                        cliffDate: new Date("2024-09-30"),
+                        unlockDate: new Date("2025-09-30"),
+                        percentage: 0.33
+                    },
+                    {
+                        cliffDate: new Date("2025-09-30"),
+                        unlockDate: new Date("2026-09-30"),
+                        percentage: 0.33
+                    },
+                    {
+                        cliffDate: new Date("2026-09-30"),
+                        unlockDate: new Date("2027-09-30"),
+                        percentage: 0.34
+                    }
+                ]
+            }
+        ];
+
+        for (const investment of investments) {
+            const { vesting, ...investmentData } = investment;
+            const createdInvestment = await prisma.investment.create({
+                data: {
+                    ...investmentData,
+                    vesting: {
+                        create: vesting
+                    }
+                }
+            });
+            console.log(`Created investment with id: ${createdInvestment.id}`);
+        }
     }
     
     console.log('Seeding finished.');
 }
+
 main()
+    .catch((e) => {
+        console.error(e);
+        process.exit(1);
+    })
+    .finally(async () => {
+        await prisma.$disconnect();
+    });
